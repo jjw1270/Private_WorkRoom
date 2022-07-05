@@ -3,20 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class GameData
+public class FocusModeData
 {
-    public string nowSkillName = "";
-    public bool haveSkill() => nowSkillName == "" ? false : true;  // 현재 스킬을 보유하고있는지
-
-    public List<string> SkillNameSet = new List<string> { };
-    public GameObject[] SkillResource;
-    public int nowProgressLevel;
+    // public string nowSkillName = "";
+    // public bool haveSkill() => nowSkillName == "" ? false : true;
+    // public List<string> SkillNameSet = new List<string> { };
+    // public GameObject[] SkillResource;
+    // public int nowProgressLevel;
 }
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
-    public GameData gameData;
+    public FocusModeData focusModeData;
     void Awake()
     {
         if (instance == null)
@@ -29,15 +28,15 @@ public class GameManager : MonoBehaviour
             if (instance != this)
                 Destroy(this.gameObject);
         }
-        gameData = new GameData { nowSkillName = "", SkillNameSet = { "Fire", "Barrier", "Water" }, nowProgressLevel = 0 };
-        gameData.SkillResource = new GameObject[gameData.SkillNameSet.Count];
+        //focusModeData = new FocusModeData { nowSkillName = "", SkillNameSet = { "Fire", "Barrier", "Water" }, nowProgressLevel = 0 };
+        //focusModeData.SkillResource = new GameObject[focusModeData.SkillNameSet.Count];
         ResourceLoad();
     }
      public void ResourceLoad()
     {
-        for (int i = 0; i < gameData.SkillNameSet.Count; i++)
-        {
-            gameData.SkillResource[i] = Resources.Load<GameObject>(string.Format("SkillEffect/{0}", gameData.SkillNameSet[i]));
-        }
+        // for (int i = 0; i < focusModeData.SkillNameSet.Count; i++)
+        // {
+        //     focusModeData.SkillResource[i] = Resources.Load<GameObject>(string.Format("SkillEffect/{0}", focusModeData.SkillNameSet[i]));
+        // }
     }
 }
