@@ -5,7 +5,9 @@ using UnityEngine;
 [System.Serializable]
 public class FocusModeData
 {
-    // public string nowSkillName = "";
+    public int FocusTimeMin;
+    public int myMoney;
+    //public string nowSkillName = "";
     // public bool haveSkill() => nowSkillName == "" ? false : true;
     // public List<string> SkillNameSet = new List<string> { };
     // public GameObject[] SkillResource;
@@ -28,7 +30,8 @@ public class GameManager : MonoBehaviour
             if (instance != this)
                 Destroy(this.gameObject);
         }
-        //focusModeData = new FocusModeData { nowSkillName = "", SkillNameSet = { "Fire", "Barrier", "Water" }, nowProgressLevel = 0 };
+        //focusModeData = new FocusModeData { FocusTimeMin = 30, SkillNameSet = { "Fire", "Barrier", "Water" }, nowProgressLevel = 0 };
+        focusModeData = new FocusModeData { FocusTimeMin = 30};
         //focusModeData.SkillResource = new GameObject[focusModeData.SkillNameSet.Count];
         ResourceLoad();
     }
