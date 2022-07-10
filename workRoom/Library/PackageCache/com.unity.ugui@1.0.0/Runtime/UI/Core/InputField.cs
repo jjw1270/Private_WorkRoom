@@ -13,7 +13,7 @@ namespace UnityEngine.UI
     /// Turn a simple label into a interactable input field.
     /// </summary>
 
-    [AddComponentMenu("UI/Legacy/Input Field", 103)]
+    [AddComponentMenu("UI/Input Field", 31)]
     public class InputField
         : Selectable,
         IUpdateSelectedHandler,
@@ -200,12 +200,6 @@ namespace UnityEngine.UI
         protected TouchScreenKeyboard m_Keyboard;
         static private readonly char[] kSeparators = { ' ', '.', ',', '\t', '\r', '\n' };
 
-    #if UNITY_ANDROID
-        static private bool s_IsQuestDeviceEvaluated = false;
-    #endif // if UNITY_ANDROID
-
-        static private bool s_IsQuestDevice = false;
-
         /// <summary>
         /// Text Text used to display the input's value.
         /// </summary>
@@ -247,15 +241,12 @@ namespace UnityEngine.UI
         [SerializeField]
         private int m_CharacterLimit = 0;
 
-        [FormerlySerializedAs("onSubmit")]
-        [FormerlySerializedAs("m_OnSubmit")]
         [FormerlySerializedAs("m_EndEdit")]
-        [FormerlySerializedAs("m_OnEndEdit")]
         [SerializeField]
-        private SubmitEvent m_OnSubmit = new SubmitEvent();
+        private EndEditEvent m_OnEndEdit = new EndEditEvent();
 
         [SerializeField]
-        private EndEditEvent m_OnDidEndEdit = new EndEditEvent();
+        private SubmitEvent m_OnSubmit = new SubmitEvent();
 
         [FormerlySerializedAs("onValueChange")]
         [FormerlySerializedAs("m_OnValueChange")]
@@ -277,7 +268,6 @@ namespace UnityEngine.UI
         private Color m_SelectionColor = new Color(168f / 255f, 206f / 255f, 255f / 255f, 192f / 255f);
 
         [SerializeField]
-        [Multiline]
         [FormerlySerializedAs("mValue")]
         protected string m_Text = string.Empty;
 
@@ -338,7 +328,6 @@ namespace UnityEngine.UI
 
         // Doesn't include dot and @ on purpose! See usage for details.
         const string kEmailSpecialCharacters = "!#$%&'*+-/=?^_`{|}~";
-        const string kOculusQuestDeviceModel = "Oculus Quest";
 
         protected InputField()
         {
@@ -685,7 +674,7 @@ namespace UnityEngine.UI
         /// ]]>
         ///</code>
         /// </example>
-        public EndEditEvent onEndEdit { get { return m_OnDidEndEdit; } set { SetPropertyUtility.SetClass(ref m_OnDidEndEdit, value); } }
+        public EndEditEvent onEndEdit { get { return m_OnEndEdit; } set { SetPropertyUtility.SetClass(ref m_OnEndEdit, value); } }
 
         /// <summary>
         /// The Unity Event to call when editing has ended
@@ -1118,21 +1107,6 @@ namespace UnityEngine.UI
 
     #endif // if UNITY_EDITOR
 
-    #if UNITY_ANDROID
-        protected override void Awake()
-        {
-            base.Awake();
-
-            if (s_IsQuestDeviceEvaluated)
-                return;
-
-            // Used for Oculus Quest 1 and 2 software keyboard regression.
-            // TouchScreenKeyboard.isInPlaceEditingAllowed is always returning true in these devices and would prevent the software keyboard from showing up if that value was used.
-            s_IsQuestDevice = SystemInfo.deviceModel == kOculusQuestDeviceModel;
-            s_IsQuestDeviceEvaluated = true;
-        }
-    #endif // if UNITY_ANDROID
-
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -1353,9 +1327,6 @@ namespace UnityEngine.UI
             switch (platform)
             {
                 case RuntimePlatform.Android:
-                    if (s_IsQuestDevice)
-                        return TouchScreenKeyboard.isSupported;
-
                     return !TouchScreenKeyboard.isInPlaceEditingAllowed;
                 default:
                     return TouchScreenKeyboard.isSupported;
@@ -1371,7 +1342,7 @@ namespace UnityEngine.UI
         // This currently only happens on Chrome OS devices (that support laptop and tablet mode).
         private bool InPlaceEditingChanged()
         {
-            return !s_IsQuestDevice && m_TouchKeyboardAllowsInPlaceEditing != TouchScreenKeyboard.isInPlaceEditingAllowed;
+            return m_TouchKeyboardAllowsInPlaceEditing != TouchScreenKeyboard.isInPlaceEditingAllowed;
         }
 
         void UpdateCaretFromKeyboard()
@@ -2287,7 +2258,7 @@ namespace UnityEngine.UI
             }
             else
             {
-                if (caretPositionInternal > 0 && caretPositionInternal - 1 < text.Length)
+                if (caretPositionInternal > 0)
                 {
                     m_Text = text.Remove(caretPositionInternal - 1, 1);
                     caretSelectPositionInternal = caretPositionInternal = caretPositionInternal - 1;
@@ -3094,7 +3065,7 @@ namespace UnityEngine.UI
             // Cache the value of isInPlaceEditingAllowed, because on UWP this involves calling into native code
             // Usually, the value only needs to be updated once when the TouchKeyboard is opened; however, on Chrome OS,
             // we check repeatedly to see if the in-place editing state has changed, so we can take action.
-            m_TouchKeyboardAllowsInPlaceEditing = !s_IsQuestDevice && TouchScreenKeyboard.isInPlaceEditingAllowed;
+            m_TouchKeyboardAllowsInPlaceEditing = TouchScreenKeyboard.isInPlaceEditingAllowed;
 
             if (TouchScreenKeyboardShouldBeUsed())
             {
